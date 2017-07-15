@@ -38,6 +38,8 @@ services:
       - gems
     volumes_from:
       - gems
+    environment:
+      - GEM_PATH=/ruby_gems
   ngrok:
     tty: true
     image: ylecuyer/ngrok
