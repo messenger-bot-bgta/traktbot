@@ -1,0 +1,49 @@
+version: '2.1'
+
+services:
+  db:
+    image: postgres:9.6.1
+    ports:
+      - 5432:5432
+  app:
+    build: 
+      context: .
+      dockerfile: docker/rails/Dockerfile
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 3000:3000
+    depends_on:
+      - db
+      - gems
+    volumes_from:
+      - gems
+    healthcheck:
+      test: "nc -z -w4 app 3000"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  gems:
+    image: busybox
+    volumes:
+      - /ruby_gems
+  spring:
+    build: 
+      context: .
+      dockerfile: docker/rails/Dockerfile
+    command: bundle exec spring server
+    volumes:
+      - .:/usr/src/app
+    depends_on:
+      - gems
+    volumes_from:
+      - gems
+  ngrok:
+    tty: true
+    image: ylecuyer/ngrok
+    ports:
+      - 4040:4040
+    env_file: .env
+    depends_on:
+      app:
+        condition: service_healthy
