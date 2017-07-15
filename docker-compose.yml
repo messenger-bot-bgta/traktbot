@@ -40,6 +40,7 @@ services:
       - gems
     environment:
       - GEM_PATH=/ruby_gems
+      - GEM_HOME=/ruby_gems
   ngrok:
     tty: true
     image: ylecuyer/ngrok
