@@ -9,6 +9,9 @@ Bot.on :message do |message|
   client = OAuth2::Client.new('58204fc7a1d802e428755a14e4ce59840dcc1b8ac6add88ead921e8f129b71c1', '17883f09805b0adc71e007b63a0ffd057727d217ab9322fe3e7fe0565c56e601', site: 'https://api.trakt.tv')
   url = client.auth_code.authorize_url(:redirect_uri => 'https://708fd9b2.ngrok.io/oauth2/callback')
 
+  message.reply(text: Trakt.new({}).trendings.inspect)
+
+=begin
   message.reply({
     attachment:{
       type:"template",
@@ -28,6 +31,7 @@ Bot.on :message do |message|
       }
     }
   })
+=end
 
 
 end
