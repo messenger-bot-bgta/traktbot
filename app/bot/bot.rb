@@ -4,35 +4,56 @@ Bot.on :message do |message|
 
   user = User.first_or_create(messenger_id: message.sender['id'])
 
-  message.reply(text: 'Hello, human!')
+  actions = {
 
-  client = OAuth2::Client.new('58204fc7a1d802e428755a14e4ce59840dcc1b8ac6add88ead921e8f129b71c1', '17883f09805b0adc71e007b63a0ffd057727d217ab9322fe3e7fe0565c56e601', site: 'https://api.trakt.tv')
-  url = client.auth_code.authorize_url(:redirect_uri => 'https://708fd9b2.ngrok.io/oauth2/callback')
+    send: -> (request, response) {
+      message.reply(text: response['text'])
+    },
 
-  message.reply(text: Trakt.new({}).trendings.inspect)
+    last_watched: -> (request) {
+      puts("Last watched")
 
-=begin
-  message.reply({
-    attachment:{
-      type:"template",
-      payload:{
-        template_type:"button",
-        text:"What do you want to do next?",
-        buttons:[
-          {
-            type:"web_url",
-            url: url,
-            title:"View Item",
-            webview_height_ratio: "tall",
-            webview_share_button: "hide",
-            messenger_extensions: true
+      request['context']['movies'] = Trakt.new({}).watched
+
+      return request['context']
+    },
+
+    show_last_watched: -> (request) {
+      puts("Show last watched")
+
+      Tmdb::Api.key("2152d9a34c711f3e1570bc0c8c8285aa")
+
+      elements = request['context']['movies'].map do |movie|
+        detail = Tmdb::Movie.detail(movie['movie']['ids']['tmdb'])
+        {
+          title: movie['movie']['title'],
+          image_url: "https://image.tmdb.org/t/p/w500/#{detail['poster_path']}",
+          subtitle: movie['movie']['year']
+        }
+      end
+
+      puts elements
+
+
+      message.reply(
+        attachment:{
+          type:"template",
+          payload:{
+            template_type:"generic",
+            image_aspect_ratio: 'square',
+            elements:elements
           }
-        ]
-      }
-    }
-  })
-=end
+        }
+      )
 
+      return request['context']
+    },
+
+  }
+
+  wit_client = Wit.new(access_token: 'EMKOS5HR4IHDIRZURA2GXSCIES35ZV6P', actions: actions)
+
+  rsp = wit_client.run_actions(message.sender["id"], message.text)
 
 end
 

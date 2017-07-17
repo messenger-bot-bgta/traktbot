@@ -13,4 +13,8 @@ class Trakt
     self.class.get('/movies/trending').first
   end
 
+  def watched
+    self.class.get('/users/ylecuyer/watched/movies').sort_by { |x| x["last_watched_at"] }.reverse!.take 5 
+  end
+
 end

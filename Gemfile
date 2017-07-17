@@ -59,3 +59,6 @@ gem 'dotenv-rails'
 gem 'facebook-messenger'
 gem 'oauth2'
 gem 'httparty'
+gem 'wit'
+gem 'themoviedb-api'
+
